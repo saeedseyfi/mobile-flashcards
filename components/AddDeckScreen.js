@@ -2,11 +2,11 @@ import React, {Component} from 'react';
 import {View, KeyboardAvoidingView, Text, TextInput} from 'react-native';
 import {connect} from 'react-redux';
 import {NavigationActions} from 'react-navigation';
-import Button from './Button';
-import {styles} from '../styles/styles';
-import {requestAddDeck} from '../actions/decks';
+import Button from 'components/Button';
+import {styles} from 'styles';
+import {addDeckAndSave} from 'actions/decks';
 
-class AddDeck extends Component {
+class AddDeckScreen extends Component {
     state = {
         text: null,
         error: null,
@@ -16,7 +16,7 @@ class AddDeck extends Component {
         const {text} = this.state;
 
         if (!text) {
-            this.setState({error: 'Please input a name for the deck'});
+            this.setState({error: 'Please enter a name for the deck'});
         } else {
             return true;
         }
@@ -64,11 +64,11 @@ class AddDeck extends Component {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-    requestAddDeck: (deck, navigation) => dispatch(requestAddDeck(deck, navigation)),
+    requestAddDeck: (deck, navigation) => dispatch(addDeckAndSave(deck, navigation)),
     navigate: (options) => dispatch(NavigationActions.navigate(options))
 });
 
 export default connect(
     null,
     mapDispatchToProps
-)(AddDeck);
+)(AddDeckScreen);

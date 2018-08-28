@@ -1,14 +1,13 @@
-import { AsyncStorage } from 'react-native';
-import { initialDecksModel } from '../reducers/decks';
-import { NavigationActions } from 'react-navigation';
+import {AsyncStorage} from 'react-native';
+import {NavigationActions} from 'react-navigation';
+
 export const ADD_CARD = 'ADD_CARD';
 export const ADD_DECK = 'ADD_DECK';
-export const REQUEST_DECKS = 'REQUEST_DECKS';
 export const RECEIVE_DECKS = 'RECEIVE_DECKS';
 
-const KEY = 'flashcards';
+const KEY = 'mobile-flashcards';
 
-export const requestAddCard = (deck, card) => {
+export const addCardAndSave = (deck, card) => {
     return dispatch => {
         AsyncStorage.getItem(KEY)
             .then((item) => {
@@ -28,73 +27,49 @@ export const requestAddCard = (deck, card) => {
 
 
 const addCard = (deck, card) => ({
-    type: ADD_CARD, 
-    deck, 
+    type: ADD_CARD,
+    deck,
     card,
 });
 
-export const requestAddDeck = (deck) => {
+export const addDeckAndSave = (deck) => {
     return (dispatch) => {
         AsyncStorage.getItem(KEY)
             .then((item) => {
-                if (!item) {
-                    AsyncStorage.setItem(KEY, JSON.stringify({
-                        ...initialDecksModel,
-                        [deck]: {
-                            title: deck,
-                            questions: []
-                        }, 
-                    })).then(async () => {
-                        dispatch(addDeck(deck));
-                        dispatch(NavigationActions.navigate({ routeName: 'DeckView', params: { title: deck }}));
-                    });                    
-                }
-                else {
-                    AsyncStorage.mergeItem(KEY, JSON.stringify({
-                        [deck]: {
-                            title: deck,
-                            questions: []
-                        }, 
-                    })).then(async () => {
-                        dispatch(addDeck(deck));
-                        dispatch(NavigationActions.navigate({ routeName: 'DeckView', params: { title: deck }}));
-                    });
-                }
+                const action = item ? 'mergeItem' : 'setItem';
+
+                AsyncStorage[action](KEY, JSON.stringify({
+                    [deck]: {
+                        title: deck,
+                        questions: []
+                    },
+                })).then(async () => {
+                    dispatch(addDeck(deck));
+                    dispatch(NavigationActions.navigate({routeName: 'DeckView', params: {title: deck}}));
+                });
             });
     };
 };
 
 const addDeck = (deck) => ({
-    type: ADD_DECK, 
+    type: ADD_DECK,
     deck: deck,
 });
 
 export const loadDecks = () => {
     return dispatch => {
-        dispatch(requestDecks);
-        // uncomment to clear storage
-        // AsyncStorage.setItem(KEY, JSON.stringify(initialDecksModel));
         AsyncStorage.getItem(KEY)
             .then((item) => {
-                if (item) {
-                    dispatch(receiveDecks(JSON.parse(item)));
-                }
-                else {
-                    dispatch(receiveDecks(initialDecksModel, null));
-                }
+                dispatch(receiveDecks(item ? JSON.parse(item) : null));
             })
             .catch((error) => {
-                console.log( error);
+                console.log(error);
             });
     };
 };
 
-export const requestDecks = () => ({
-    type: REQUEST_DECKS
-});
-
 export const receiveDecks = (decks) => ({
-    type: RECEIVE_DECKS, 
+    type: RECEIVE_DECKS,
     decks,
     loadedAt: Date.now()
 });

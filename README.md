@@ -5,4 +5,9 @@ This is Udacity React Native project. This app is bootstrapped using Create Reac
 ```
 npm install
 npm start
+
+# to run emulator
+npm run ios
+# or 
+npm run android
 ```

@@ -2,10 +2,10 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {View, Text, TextInput, KeyboardAvoidingView} from 'react-native';
 import Button from './Button';
-import {styles} from '../styles/styles';
-import {requestAddCard} from '../actions/decks';
+import {styles} from 'styles';
+import {addCardAndSave} from 'actions/decks';
 
-class AddCard extends Component {
+class AddCardScreen extends Component {
     state = {
         question: null,
         answer: null,
@@ -82,10 +82,10 @@ const mapStateToProps = ({decks}, {navigation}) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-    requestAddCard: (deck, card) => dispatch(requestAddCard(deck, card))
+    requestAddCard: (deck, card) => dispatch(addCardAndSave(deck, card))
 });
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(AddCard);
+)(AddCardScreen);

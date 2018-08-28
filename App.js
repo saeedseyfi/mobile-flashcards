@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import {createStackNavigator, createMaterialTopTabNavigator} from 'react-navigation';
+import {Text} from 'react-native';
+import {createStackNavigator, createBottomTabNavigator} from 'react-navigation';
 import {
     reduxifyNavigator,
     createReactNavigationReduxMiddleware,
@@ -8,27 +9,29 @@ import {
 import {createStore, applyMiddleware, combineReducers} from 'redux';
 import {Provider, connect} from 'react-redux';
 import thunkMiddleware from 'redux-thunk';
-import decks from './reducers/decks';
-import quiz from './reducers/quiz';
-import DeckListView from './components/DeckListView';
-import DeckView from './components/DeckView';
-import {colors} from './styles/styles';
-import AddCard from './components/AddCard';
-import QuizView from './components/QuizView';
-import AddDeck from './components/AddDeck';
-import {setNotification} from './utilities/notification';
+import decksReducer from 'reducers/decks';
+import quizReducer from 'reducers/quiz';
+import DeckListScreen from 'components/DeckListScreen';
+import DeckScreen from 'components/DeckScreen';
+import {colors} from 'styles';
+import AddCardScreen from 'components/AddCardScreen';
+import QuizScreen from 'components/QuizScreen';
+import AddDeckScreen from 'components/AddDeckScreen';
+import {setNotification} from 'utils/notification';
 
-const Tabs = createMaterialTopTabNavigator({
+const TabNavigator = createBottomTabNavigator({
         DeckListView: {
-            screen: DeckListView,
+            screen: DeckListScreen,
             navigationOptions: {
                 tabBarLabel: 'Decks',
+                tabBarIcon: () => <Text style={{fontSize: 20}}>🗂</Text>
             },
         },
         AddDeck: {
-            screen: AddDeck,
+            screen: AddDeckScreen,
             navigationOptions: {
                 tabBarLabel: 'Add New Deck',
+                tabBarIcon: () => <Text style={{fontSize: 20}}>➕</Text>
             },
         }
     },
@@ -42,12 +45,12 @@ const Tabs = createMaterialTopTabNavigator({
         },
     });
 
-const AppNavigator = createStackNavigator({
+const StackNavigator = createStackNavigator({
     Home: {
-        screen: Tabs,
+        screen: TabNavigator,
     },
     DeckView: {
-        screen: DeckView,
+        screen: DeckScreen,
         navigationOptions: ({navigation}) => ({
             title: `${navigation.state.params.title}`,
             headerTintColor: colors.white,
@@ -57,7 +60,7 @@ const AppNavigator = createStackNavigator({
         }),
     },
     AddCard: {
-        screen: AddCard,
+        screen: AddCardScreen,
         navigationOptions: ({navigation}) => ({
             title: `Add card to ${navigation.state.params.title}`,
             headerTintColor: colors.white,
@@ -67,7 +70,7 @@ const AppNavigator = createStackNavigator({
         }),
     },
     QuizView: {
-        screen: QuizView,
+        screen: QuizScreen,
         navigationOptions: ({navigation}) => ({
             title: `${navigation.state.params.title} quiz`,
             headerTintColor: colors.white,
@@ -78,21 +81,12 @@ const AppNavigator = createStackNavigator({
     },
 });
 
-const navReducer = createNavigationReducer(AppNavigator);
+const navReducer = createNavigationReducer(StackNavigator);
 
-const logger = store => next => action => {
-    console.group(action.type);
-    console.info('dispatching', action);
-    let result = next(action);
-    console.log('next state', store.getState());
-    console.groupEnd(action.type);
-    return result;
-};
-
-const appReducer = combineReducers({
+const reducer = combineReducers({
     nav: navReducer,
-    decks,
-    quiz
+    decks: decksReducer,
+    quiz: quizReducer
 });
 
 const reduxMiddleware = createReactNavigationReduxMiddleware(
@@ -100,15 +94,17 @@ const reduxMiddleware = createReactNavigationReduxMiddleware(
     state => state.nav,
 );
 
-const App = reduxifyNavigator(AppNavigator, 'root');
+const ReduxifiedApp = reduxifyNavigator(StackNavigator, 'root');
+
 const mapStateToProps = (state) => ({
     state: state.nav,
 });
-const AppWithNavigationState = connect(mapStateToProps)(App);
+
+const AppWithNavigationState = connect(mapStateToProps)(ReduxifiedApp);
 
 const store = createStore(
-    appReducer,
-    applyMiddleware(thunkMiddleware, reduxMiddleware, logger),
+    reducer,
+    applyMiddleware(thunkMiddleware, reduxMiddleware),
 );
 
 export default class Root extends Component {

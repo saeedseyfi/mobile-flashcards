@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {View, Text} from 'react-native';
-import Button from './Button';
-import {styles} from '../styles/styles';
-import FlipCard from 'react-native-flip-card';
-import {answerQuestion, restartQuiz} from '../actions/quiz';
 import {NavigationActions} from 'react-navigation';
-import {removeExistingNotification, setLocalNotification} from '../utilities/notification';
+import FlipCard from 'react-native-flip-card';
+import Button from 'components/Button';
+import {styles} from 'styles';
+import {answerQuestion, restartQuiz} from 'actions/quiz';
+import {removeExistingNotification, setNotification} from 'utils/notification';
 
-class QuizView extends Component {
+class QuizScreen extends Component {
     handleCorrectClick = () => {
         this.props.answerQuestion(true);
     };
@@ -35,16 +35,16 @@ class QuizView extends Component {
         const {deck, currentQuestion, score} = this.props;
         const numberOfQuestions = deck.questions.length;
         if (currentQuestion >= numberOfQuestions) {
-            const percentCorrect = this.getScorePercentage(score, numberOfQuestions);
+            const correctPercent = this.getScorePercentage(score, numberOfQuestions);
 
             removeExistingNotification()
-                .then(setLocalNotification);
+                .then(setNotification);
 
             return (
                 <View style={styles.container}>
                     <View style={styles.container}>
                         <Text style={styles.header}>
-                            Awesome! You got {percentCorrect}% correct
+                            Correct answer percentage: {correctPercent}%
                         </Text>
                         <Button
                             onPress={this.handleRestartQuizClick}
@@ -125,4 +125,4 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(QuizView);
+)(QuizScreen);

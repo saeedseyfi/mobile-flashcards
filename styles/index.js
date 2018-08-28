@@ -57,13 +57,15 @@ export const styles = StyleSheet.create({
         color: colors.white
     },
     actionContainer: {
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingBottom: fonts.large
+        paddingBottom: 20
     },
     baseButton: {
         justifyContent: 'center',
-        width: 200,
+        paddingLeft: 40,
+        paddingRight: 40,
         borderRadius: 5,
         height: 50,
     },
@@ -117,7 +119,8 @@ export const styles = StyleSheet.create({
         height: 400,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: colors.white
+        backgroundColor: colors.white,
+        borderRadius: 10
     },
     flipCardBack: {
         backgroundColor: colors.white,
